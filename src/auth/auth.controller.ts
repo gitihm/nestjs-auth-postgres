@@ -1,15 +1,18 @@
 import {
   Body,
   Controller,
-  HttpCode,
+  Get,
   HttpStatus,
   Post,
+  Query,
   Req,
   Res,
 } from '@nestjs/common';
 import { IUser } from 'src/user/entity/user.entity';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcryptjs';
+import * as jwt from 'jsonwebtoken';
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly userService: UserService) {}
@@ -39,8 +42,44 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Req() req, @Res() res) {
-    return res.status(200).json({ message: 'login' });
+  async login(@Req() req, @Body() body, @Res() res) {
+    try {
+      const { username, password } = body;
+      const user = await this.userService.getByUsername(username);
+      if (!user) {
+        return res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ message: 'username not found' });
+      }
+      const status = await this.compare(password, user.password);
+      if (status) {
+        const token = await this.createToken(user);
+        const {password , ...userwithoutpassword} = user
+        return res.status(200).json({ token , user : userwithoutpassword });
+      } else {
+        return res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ message: 'username not found' });
+      }
+    } catch (error) {
+      return res.status(HttpStatus.BAD_GATEWAY).json(error);
+    }
+  }
+
+  @Get('me')
+  async me(@Req() req, @Res() res) {
+    try {
+      const result = await this.authorization(req);
+      if (!result) {
+        return res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ message: 'token not found' });
+      }
+      const { password, ...user } = result;
+      return res.status(HttpStatus.OK).json({ user });
+    } catch (error) {
+        return res.status(HttpStatus.BAD_GATEWAY).json(error);
+    }
   }
 
   async hash(password) {
@@ -49,5 +88,18 @@ export class AuthController {
 
   async compare(password, hash) {
     return bcrypt.compare(password, hash);
+  }
+
+  async createToken(data, exipration = undefined) {
+    return jwt.sign(data, 'nzblsjdbflahbdslfjhbalsdjbflajhdsblfhasbdflhj');
+  }
+
+  async authorization(req): Promise<any> {
+    const token = req.headers.authorization.replace('Bearer ', '');
+    return jwt.verify(
+      token,
+      'nzblsjdbflahbdslfjhbalsdjbflajhdsblfhasbdflhj',
+      (err, decoded) => decoded,
+    );
   }
 }
