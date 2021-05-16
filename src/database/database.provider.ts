@@ -1,4 +1,5 @@
-import { Sequelize } from 'sequelize-typescript'
+import { Sequelize } from 'sequelize-typescript';
+import { User } from 'src/user/entity/user.entity';
 export const databaseProviders = [
   {
     provide: 'SEQUELIZE',
@@ -10,10 +11,10 @@ export const databaseProviders = [
         username: 'postgres',
         password: 'docker',
         database: 'postgres',
-      })
-      sequelize.addModels([])
-      await sequelize.sync()
-      return sequelize
+      });
+      sequelize.addModels([User]);
+      await sequelize.sync();
+      return sequelize;
     },
   },
-]
+];
