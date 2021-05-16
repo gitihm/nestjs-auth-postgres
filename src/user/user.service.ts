@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { User } from './entity/user.entity';
+import { IUser, User } from './entity/user.entity';
 import { UsersRepositories } from './user.providers';
 
 @Injectable()
@@ -9,7 +9,7 @@ export class UserService {
     private readonly user: typeof User,
   ) {}
 
-  async create(data: User) {
+  async create(data: IUser) {
     return this.user.create(data);
   }
 
@@ -18,6 +18,6 @@ export class UserService {
   }
 
   async getByUsername(username: string) {
-    return this.user.findOne({ where: { username: username } });
+    return this.user.findOne({ where: { username: username }, raw: true });
   }
 }

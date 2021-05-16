@@ -27,3 +27,11 @@ export class User extends Model<User> {
     @Column
     name : string
 }
+
+
+export interface IUser {
+    id? : number
+    username : string
+    password : string
+    name : string
+}
