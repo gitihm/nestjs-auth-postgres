@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize-typescript';
+import { Address } from 'src/address/entity/address.entity';
 import { User } from 'src/user/entity/user.entity';
 export const databaseProviders = [
   {
@@ -12,7 +13,7 @@ export const databaseProviders = [
         password: 'docker',
         database: 'postgres',
       });
-      sequelize.addModels([User]);
+      sequelize.addModels([User,Address]);
       await sequelize.sync();
       return sequelize;
     },

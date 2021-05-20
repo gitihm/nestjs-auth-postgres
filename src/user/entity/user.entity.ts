@@ -4,7 +4,11 @@ import {
   PrimaryKey,
   Table,
   AutoIncrement,
+  BelongsTo,
+  HasOne,
+  HasMany,
 } from 'sequelize-typescript';
+import { Address } from 'src/address/entity/address.entity';
 
 @Table({
   tableName: 'Users',
@@ -26,6 +30,11 @@ export class User extends Model<User> {
 
     @Column
     name : string
+
+    @HasMany(()=>Address)
+    address : Address[]
+
+
 }
 
 
